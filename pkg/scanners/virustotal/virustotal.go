@@ -79,7 +79,7 @@ func VirusTotalScan(api_key, target string, target_type utils.TargetType, save_t
 	return true, *virusTotalResp, "Scan completed successfully."
 }
 
-func ProcessTargetListVT(targets []string) {
+func ProcessTargetListVT(targets []string, apiKey string) {
 
 	existingTarget := utils.LoadExistingTargetScanned(utils.ServiceTypeVT)
 
@@ -120,9 +120,14 @@ func ProcessTargetListVT(targets []string) {
 
 		log.Printf("[%d/%d] Scanning Target: %s | Type: %s", i+1, len(targets), target, target_type)
 
+		// if api key is not provided, try to use the environment variable
+		if apiKey == "" {
+			apiKey = VIRUS_TOTAL_API_KEY
+		}
+
 		// process scan here
 		if ok, _, msg := VirusTotalScan(
-			VIRUS_TOTAL_API_KEY,
+			apiKey,
 			target,
 			utils.TargetType(target_type),
 			true,

@@ -17,17 +17,27 @@ const (
 
 	OUTPUT_DIR = "results"
 
-	CSV_FILENAME_VT        = "results-virustotal.csv"
-	CSV_RESULT_VT_FILEPATH = OUTPUT_DIR + "/" + CSV_FILENAME_VT
+	OUTPUT_DIR_REPORT_LLM = OUTPUT_DIR + "/reports"
 
-	CSV_FILENAME_ABUSEIPDB        = "results-abuseipdb.csv"
-	CSV_RESULT_ABUSEIPDB_FILEPATH = OUTPUT_DIR + "/" + CSV_FILENAME_ABUSEIPDB
+	CSV_FILENAME_VT            = "results-virustotal.csv"
+	CSV_RESULT_VT_FILEPATH     = OUTPUT_DIR + "/" + CSV_FILENAME_VT
+	TXT_LLM_REPORT_VT_FILEPATH = OUTPUT_DIR_REPORT_LLM + "/report-virustotal.txt"
+	PDF_LLM_REPORT_VT_FILEPATH = OUTPUT_DIR_REPORT_LLM + "/report-virustotal.pdf"
 
-	CSV_FILENAME_HYBRIDANALYSIS        = "results-hybridanalysis.csv"
-	CSV_RESULT_HYBRIDANALYSIS_FILEPATH = OUTPUT_DIR + "/" + CSV_FILENAME_HYBRIDANALYSIS
+	CSV_FILENAME_ABUSEIPDB            = "results-abuseipdb.csv"
+	CSV_RESULT_ABUSEIPDB_FILEPATH     = OUTPUT_DIR + "/" + CSV_FILENAME_ABUSEIPDB
+	TXT_LLM_REPORT_ABUSEIPDB_FILEPATH = OUTPUT_DIR_REPORT_LLM + "/report-abuseipdb.txt"
+	PDF_LLM_REPORT_ABUSEIPDB_FILEPATH = OUTPUT_DIR_REPORT_LLM + "/report-abuseipdb.pdf"
 
-	CSV_FILENAME_IPQS        = "results-ipqs.csv"
-	CSV_RESULT_IPQS_FILEPATH = OUTPUT_DIR + "/" + CSV_FILENAME_IPQS
+	CSV_FILENAME_HYBRIDANALYSIS            = "results-hybridanalysis.csv"
+	CSV_RESULT_HYBRIDANALYSIS_FILEPATH     = OUTPUT_DIR + "/" + CSV_FILENAME_HYBRIDANALYSIS
+	TXT_LLM_REPORT_HYBRIDANALYSIS_FILEPATH = OUTPUT_DIR_REPORT_LLM + "/report-hybridanalysis.txt"
+	PDF_LLM_REPORT_HYBRIDANALYSIS_FILEPATH = OUTPUT_DIR_REPORT_LLM + "/report-hybridanalysis.pdf"
+
+	CSV_FILENAME_IPQS            = "results-ipqs.csv"
+	CSV_RESULT_IPQS_FILEPATH     = OUTPUT_DIR + "/" + CSV_FILENAME_IPQS
+	TXT_LLM_REPORT_IPQS_FILEPATH = OUTPUT_DIR_REPORT_LLM + "/report-ipqs.txt"
+	PDF_LLM_REPORT_IPQS_FILEPATH = OUTPUT_DIR_REPORT_LLM + "/report-ipqs.pdf"
 )
 
 func SaveResultToCSV(scanType TargetType, target string, result interface{}, serviceType Servicetype) error {
@@ -290,4 +300,41 @@ func SaveResultToCSV(scanType TargetType, target string, result interface{}, ser
 	}
 
 	return nil
+}
+
+func SaveResultReportLLMToTXT(serviceType Servicetype, result string) (string, error) {
+
+	var filepath string
+
+	// create dir
+	if err := os.MkdirAll(OUTPUT_DIR_REPORT_LLM, 0755); err != nil {
+		return "", fmt.Errorf("failed to create report directory: %w", err)
+	}
+
+	switch serviceType {
+	case ServiceTypeVT:
+		filepath = TXT_LLM_REPORT_VT_FILEPATH
+	case ServiceTypeAbuseIPDB:
+		filepath = TXT_LLM_REPORT_ABUSEIPDB_FILEPATH
+	case ServiceTypeHybridAnalysis:
+		filepath = TXT_LLM_REPORT_HYBRIDANALYSIS_FILEPATH
+	case ServiceTypeIPQS:
+		filepath = TXT_LLM_REPORT_IPQS_FILEPATH
+	default:
+		return "", fmt.Errorf("unsupported service type: %s", serviceType)
+	}
+
+	// save result to file txt and if file exists before, just overwrite it
+	file, err := os.Create(filepath)
+	if err != nil {
+		return "", fmt.Errorf("failed to create report file: %w", err)
+	}
+	defer file.Close()
+
+	_, err = file.WriteString(result)
+	if err != nil {
+		return "", fmt.Errorf("failed to write report content to file: %w", err)
+	}
+
+	return filepath, nil
 }

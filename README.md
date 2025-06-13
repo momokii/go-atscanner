@@ -14,6 +14,8 @@ A comprehensive threat intelligence scanner for IPs, domains, and file hashes, i
   - File Hashes (VirusTotal, Hybrid Analysis)
 - **Batch Processing**: Scan multiple targets from CSV files
 - **Detailed Reports**: Export results as CSV files for further analysis
+- **AI-Powered Analysis**: LLM-based analysis of scan results with structured security reports
+- **Multiple Report Formats**: Export professional reports in both TXT and PDF formats
 - **User-Friendly Interface**: Simple command-line interface with interactive selection
 
 ## 📋 Supported Services
@@ -49,10 +51,14 @@ go build -o go-atscanner.exe
 Create a `.env` file in the project root with your API keys:
 
 ```
+# Security Scanner API Keys
 VIRUS_TOTAL_API_KEY=your_virustotal_api_key
 ABUSEIPDB_API_KEY=your_abuseipdb_api_key
 HYBRID_ANALYSIS_API_KEY=your_hybridanalysis_api_key
 IPQS_API_KEY=your_ipqualityscore_api_key
+
+# LLM API Key for AI-Powered Analysis (Optional)
+OPENAI_API_KEY=your_openai_api_key
 ```
 
 ## 📊 Usage
@@ -74,15 +80,34 @@ example.com
 ./go-atscanner.exe
 ```
 
-Follow the interactive prompts to select which scanning service to use.
+Follow the interactive prompts:
+
+1. Select a security API to use (VirusTotal, AbuseIPDB, Hybrid Analysis, or IPQualityScore)
+2. Choose whether to manually input your API key or use the one from your `.env` file
+3. Decide if you want to use LLM-powered analysis for generating comprehensive reports
+4. If you select LLM analysis, provide your OpenAI API key if not in the `.env` file
+
+The scanner will process all targets from your CSV file and generate the appropriate reports.
 
 ### View Results
 
-Results are saved as CSV files in the `results` directory:
+Results are saved in the following formats:
+
+**CSV Results** (Raw Data):
 - `results/results-virustotal.csv`
 - `results/results-abuseipdb.csv`
 - `results/results-hybridanalysis.csv`
 - `results/results-ipqs.csv`
+
+**LLM Analysis Reports** (when LLM analysis is enabled):
+- `results/reports/report-virustotal.txt` (Text format)
+- `results/reports/report-abuseipdb.txt` (Text format)
+- `results/reports/report-hybridanalysis.txt` (Text format)
+- `results/reports/report-ipqs.txt` (Text format)
+- `results/reports/report-virustotal.pdf` (PDF format)
+- `results/reports/report-abuseipdb.pdf` (PDF format)
+- `results/reports/report-hybridanalysis.pdf` (PDF format)
+- `results/reports/report-ipqs.pdf` (PDF format)
 
 ## 📑 Understanding Results
 
@@ -219,9 +244,39 @@ DEVICE INFORMATION
 */
 ```
 
-## 📝 Future Enhancement
+## 🧠 LLM-Powered Analysis
+
+Go-ATScanner now features AI-powered analysis of scan results. The tool can:
+
+- Generate comprehensive security assessment reports for each scanner type
+- Analyze and interpret technical data into actionable intelligence
+- Provide structured, professional-grade security reports with:
+  - Executive summary with clear threat level assessment
+  - Detailed threat analysis with risk scoring
+  - Key security indicators extracted from scan data
+  - Technical details explaining findings
+  - Actionable recommendations based on scan results
+
+### Enabling LLM Analysis
+
+To use the LLM analysis feature:
+
+1. Add your OpenAI API key to the `.env` file:
+   ```
+   OPENAI_API_KEY=your_openai_api_key
+   ```
+
+2. When running the scanner, select "yes" when prompted to use LLM for report generation
+3. Reports are saved in the `results/reports` directory in both TXT and PDF formats:
+   - `results/reports/report-virustotal.txt`
+   - `results/reports/report-abuseipdb.txt`
+   - `results/reports/report-hybridanalysis.txt`
+   - `results/reports/report-ipqs.txt`
+
+## 📝 Future Enhancements
 
 Future enhancements planned for this project:
-- [ ] LLM-powered analysis of scan results
-- [ ] Interactive visualizations
+- [ ] Interactive visualizations for scan results
 - [ ] Automated threat correlation across multiple sources
+- [ ] Expanded support for additional security APIs
+- [ ] Custom report templates for different organizational needs

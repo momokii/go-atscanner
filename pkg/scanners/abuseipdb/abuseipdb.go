@@ -78,7 +78,7 @@ func AbuselIPDBScan(api_key, target string, save_to_csv bool) (bool, string) {
 	return true, ""
 }
 
-func ProcessTargetListAbuseIPDB(targets []string) {
+func ProcessTargetListAbuseIPDB(targets []string, apiKey string) {
 
 	existingTarget := utils.LoadExistingTargetScanned(utils.ServiceTypeAbuseIPDB)
 
@@ -119,9 +119,14 @@ func ProcessTargetListAbuseIPDB(targets []string) {
 
 		log.Printf("[%d/%d] Scanning Target: %s | Type: %s", i+1, len(targets), target, target_type)
 
+		// if api key is not provided, try to use the environment variable
+		if apiKey == "" {
+			apiKey = ABUSE_IP_DB_API_KEY
+		}
+
 		// process scan here
 		if ok, msg := AbuselIPDBScan(
-			ABUSE_IP_DB_API_KEY,
+			apiKey,
 			target,
 			true,
 		); !ok {

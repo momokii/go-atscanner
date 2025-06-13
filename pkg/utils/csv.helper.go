@@ -191,3 +191,82 @@ func LoadExistingTargetScannedAsMap(serviceType Servicetype) map[string]bool {
 
 	return csvTarget.GetAllTargetAsMap()
 }
+
+func OpenCSVServiceResult(serviceType Servicetype) (result string, err error) {
+
+	resultFiles := map[Servicetype]string{
+		ServiceTypeVT:             CSV_RESULT_VT_FILEPATH,
+		ServiceTypeAbuseIPDB:      CSV_RESULT_ABUSEIPDB_FILEPATH,
+		ServiceTypeHybridAnalysis: CSV_RESULT_HYBRIDANALYSIS_FILEPATH,
+		ServiceTypeIPQS:           CSV_RESULT_IPQS_FILEPATH,
+	}
+
+	filepath, exists := resultFiles[serviceType]
+	if !exists {
+		return "", fmt.Errorf("unsupported service type: %s", serviceType)
+	}
+
+	// process and open file
+	if _, err := os.Stat(filepath); os.IsNotExist(err) {
+		return "", fmt.Errorf("result file does not exist: %s", filepath)
+	}
+
+	// read content
+	file, err := os.Open(filepath)
+	if err != nil {
+		return "", fmt.Errorf("error opening result file: %v", err)
+	}
+	defer file.Close()
+
+	// process csv
+	reader := csv.NewReader(file)
+
+	// read record
+	records, err := reader.ReadAll()
+	if err != nil {
+		return "", fmt.Errorf("error reading CSV file: %v", err)
+	}
+
+	// so the data is null because max just the csv header column
+	if len(records) < 2 {
+		return "", fmt.Errorf("no data found in the CSV file: %s", filepath)
+	}
+
+	// format result
+	var sb strings.Builder
+
+	sb.WriteString(fmt.Sprintf("# %s Scan Results\n\n", serviceType))
+
+	headers := records[0]
+
+	sb.WriteString("| ")
+	for _, header := range headers {
+		sb.WriteString(header)
+		sb.WriteString(" | ")
+	}
+	sb.WriteString("\n|")
+
+	// separator row
+	for range headers {
+		sb.WriteString(" --- |")
+	}
+	sb.WriteString("\n")
+
+	// write data row, and ofc start with no 2 because no 1 is header csv
+	for _, record := range records[1:] {
+		if len(record) == 0 {
+			continue // skip for empty row
+		}
+
+		sb.WriteString("| ")
+		for i, value := range record {
+			if i < len(headers) {
+				sb.WriteString(value)
+				sb.WriteString(" | ")
+			}
+		}
+		sb.WriteString("\n")
+	}
+
+	return sb.String(), nil
+}

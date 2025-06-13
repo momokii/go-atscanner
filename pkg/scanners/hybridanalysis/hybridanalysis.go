@@ -108,7 +108,7 @@ func HybridAnalysisScan(apiKey, target string, save_to_csv bool) (bool, string) 
 	return true, ""
 }
 
-func ProcessTargetListHybridAnalysis(targets []string) {
+func ProcessTargetListHybridAnalysis(targets []string, apiKey string) {
 
 	existingTarget := utils.LoadExistingTargetScanned(utils.ServiceTypeHybridAnalysis)
 
@@ -148,8 +148,13 @@ func ProcessTargetListHybridAnalysis(targets []string) {
 
 		log.Printf("[%d/%d] Starting scan for target: %s", i+1, len(targets), target)
 
+		// if api key is not provided, try to use the environment variable
+		if apiKey == "" {
+			apiKey = HYBRID_ANALYSIS_API_KEY
+		}
+
 		if success, msg := HybridAnalysisScan(
-			HYBRID_ANALYSIS_API_KEY,
+			apiKey,
 			target,
 			true, // save to CSV
 		); !success {

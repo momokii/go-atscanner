@@ -16,7 +16,7 @@ const (
 
 var (
 	IPQS_API_KEY         = os.Getenv("IPQS_API_KEY")
-	IPQS_API_IP_SCAN_URL = BASE_DOMAIN_IPQS + "/ip/" + IPQS_API_KEY + "/"
+	IPQS_API_IP_SCAN_URL = BASE_DOMAIN_IPQS + "/ip/"
 )
 
 func IPQSScan(apiKey, target string, save_to_csv bool) (bool, string) {
@@ -35,7 +35,7 @@ func IPQSScan(apiKey, target string, save_to_csv bool) (bool, string) {
 		return false, "Invalid target type provided. IPQualityScore only supports IP addresses."
 	}
 
-	url := IPQS_API_IP_SCAN_URL + target
+	url := IPQS_API_IP_SCAN_URL + apiKey + "/" + target
 
 	httpClient := &http.Client{}
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -76,7 +76,7 @@ func IPQSScan(apiKey, target string, save_to_csv bool) (bool, string) {
 	return true, ""
 }
 
-func ProcessTargetListIPQS(targets []string) {
+func ProcessTargetListIPQS(targets []string, apiKey string) {
 
 	existingTarget := utils.LoadExistingTargetScanned(utils.ServiceTypeIPQS)
 
@@ -116,8 +116,13 @@ func ProcessTargetListIPQS(targets []string) {
 
 		log.Printf("[%d/%d] Scanning target: %s\n", i+1, len(targets), target)
 
+		// if api key is not provided, try to use the environment variable
+		if apiKey == "" {
+			apiKey = IPQS_API_KEY
+		}
+
 		if ok, msg := IPQSScan(
-			IPQS_API_KEY,
+			apiKey,
 			target,
 			true,
 		); !ok {

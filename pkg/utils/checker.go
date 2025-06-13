@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"path/filepath"
@@ -91,6 +92,8 @@ func CheckIfAllTargetSuccessfullyScanned(targets []string, serviceType Servicety
 	}
 
 	existingTarget := LoadExistingTargetScannedAsMap(serviceType)
+
+	fmt.Println("")
 
 	allScanned := true
 	for _, target := range targets {
